@@ -1,4 +1,4 @@
-const launches = new Map();
+export const launches = new Map();
 
 const launch = {
     flightNumber: 100,
