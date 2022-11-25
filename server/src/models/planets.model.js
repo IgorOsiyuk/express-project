@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path"
 import { parse } from "csv-parse"
 
-export const habitablePlanets = [];
+const habitablePlanets = [];
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -37,8 +37,11 @@ export function loadPlanetsData() {
             });
     })
 }
+export function getAllPanets() {
+    return habitablePlanets
+}
 
 export default {
     loadPlanetsData,
-    habitablePlanets
+    getAllPanets
 }
