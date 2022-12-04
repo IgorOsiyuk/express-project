@@ -1,9 +1,10 @@
-import { getAllPanets } from "../../models/planets.model.js"
+import { getAllPanets } from "../../models/planets.model.js";
 
-export function httpGetAllPlanets(req, res) {
-    return res.status(200).json(getAllPanets());
+export async function httpGetAllPlanets(req, res) {
+  const planets = await getAllPanets();
+  return res.status(200).json(planets);
 }
 
 export default {
-    httpGetAllPlanets
-}
+  httpGetAllPlanets,
+};
