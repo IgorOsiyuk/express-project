@@ -17,49 +17,63 @@ const launch = {
 };
 
 // launches.set(launch.flightNumber, launch);
-saveLaunche(launch)
+saveLaunch(launch);
 
 export function existsLaunchWithId(launchId) {
   return launches.has(launchId);
 }
 
-export async function getLatestFlightNumber() {
+async function getLatestFlightNumber() {
   const latestLaunch = await launches.findOne().sort("-flightNumber");
 
   if (!latestLaunch) {
     return DEFAULT_FLIGHT_NUMBER;
   }
 
-  return latestLaunch.flightNumber
+  return latestLaunch.flightNumber;
 }
-
 
 export async function getAllLaunches() {
-  return await launches.find({}, { "_id": 0, "__v": 0 })
+  return await launches.find({}, { _id: 0, __v: 0 });
 }
 
-async function saveLaunche(launch) {
-  const planet = await planets.findOne({ keplerName: launch.target })
+async function saveLaunch(launch) {
+  const planet = await planets.findOne({ keplerName: launch.target });
   if (!planet) {
-    throw new Error("No matching planet found")
+    throw new Error("No matching planet found");
   }
-  await launches.updateOne({
-    flightNumber: launch.flightNumber
-  }, launch, {
-    upsert: true
-  })
+  await launches.findOneAndUpdate(
+    {
+      flightNumber: launch.flightNumber,
+    },
+    launch,
+    {
+      upsert: true,
+    }
+  );
 }
 
-export function addNewLaunch(launch) {
-  latestFlightNumber++;
-  launches.set(latestFlightNumber, {
-    ...launch,
-    upcoming: true,
+export async function sheduleNewLaunch(launch) {
+  const newFlightNumber = (await getLatestFlightNumber()) + 1;
+  const newLaunch = Object.assign(launch, {
+    success: true,
     success: true,
     customer: ["Zero TM", "NASA"],
-    flightNumber: latestFlightNumber,
+    flightNumber: newFlightNumber,
   });
+
+  await saveLaunch(newLaunch);
 }
+// export function addNewLaunch(launch) {
+//   latestFlightNumber++;
+//   launches.set(latestFlightNumber, {
+//     ...launch,
+//     upcoming: true,
+//     success: true,
+//     customer: ["Zero TM", "NASA"],
+//     flightNumber: latestFlightNumber,
+//   });
+// }
 
 export function abortLaunchById(launchId) {
   const aborted = launches.get(launchId);
@@ -72,6 +86,6 @@ export function abortLaunchById(launchId) {
 export default {
   existsLaunchWithId,
   getAllLaunches,
-  addNewLaunch,
+  sheduleNewLaunch,
   abortLaunchById,
 };
