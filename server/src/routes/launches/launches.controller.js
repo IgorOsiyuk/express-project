@@ -5,8 +5,8 @@ import {
   abortLaunchById,
 } from "../../models/launches.model.js";
 
-export function httpGetAllLaunches(req, res) {
-  return res.status(200).json(getAllLaunches());
+export async function httpGetAllLaunches(req, res) {
+  return res.status(200).json(await getAllLaunches());
 }
 
 export function httpAddNewLaunch(req, res) {
@@ -21,7 +21,9 @@ export function httpAddNewLaunch(req, res) {
       error: "Missing launch data",
     });
   }
+
   launch.launchDate = new Date(launch.launchDate);
+
   if (isNaN(launch.launchDate)) {
     return res.status(400).json({
       error: "Invalid launch date",
