@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles",
     "test-watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "watch": "nodemon src/server.js",
     "start": "PORT=8000 node src/server.js",
@@ -13,6 +13,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "jest":{
+    "testEnvironment":"node"
+  },
   "type": "module",
   "dependencies": {
     "cors": "^2.8.5",
