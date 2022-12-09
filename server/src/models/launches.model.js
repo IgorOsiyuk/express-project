@@ -1,8 +1,6 @@
 import launches from "./launches.mongo.js";
 import planets from "./planets.mongo.js";
 
-// export const launches = new Map();
-
 const DEFAULT_FLIGHT_NUMBER = 100;
 
 const launch = {
@@ -16,11 +14,10 @@ const launch = {
   success: true,
 };
 
-// launches.set(launch.flightNumber, launch);
 saveLaunch(launch);
 
-export function existsLaunchWithId(launchId) {
-  return launches.has(launchId);
+export async function existsLaunchWithId(launchId) {
+  return await launches.findOne({ flightNumber: launchId });
 }
 
 async function getLatestFlightNumber() {
@@ -56,7 +53,7 @@ async function saveLaunch(launch) {
 export async function sheduleNewLaunch(launch) {
   const newFlightNumber = (await getLatestFlightNumber()) + 1;
   const newLaunch = Object.assign(launch, {
-    success: true,
+    upcoming: true,
     success: true,
     customer: ["Zero TM", "NASA"],
     flightNumber: newFlightNumber,
@@ -64,23 +61,17 @@ export async function sheduleNewLaunch(launch) {
 
   await saveLaunch(newLaunch);
 }
-// export function addNewLaunch(launch) {
-//   latestFlightNumber++;
-//   launches.set(latestFlightNumber, {
-//     ...launch,
-//     upcoming: true,
-//     success: true,
-//     customer: ["Zero TM", "NASA"],
-//     flightNumber: latestFlightNumber,
-//   });
-// }
 
-export function abortLaunchById(launchId) {
-  const aborted = launches.get(launchId);
-  aborted.upcoming = false;
-  aborted.success = false;
+export async function abortLaunchById(launchId) {
+  const aborted = await launches.updateOne({
+    flightNumber: launchId
+  }, {
+    upcoming: false,
+    success: false
+  })
 
-  return aborted;
+
+  return aborted.modifiedCount === 1;
 }
 
 export default {
