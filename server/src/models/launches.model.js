@@ -1,7 +1,10 @@
+import axios from "axios";
+
 import launches from "./launches.mongo.js";
 import planets from "./planets.mongo.js";
 
 const DEFAULT_FLIGHT_NUMBER = 100;
+const SPACEX_API_URL = "https://api.spacexdata.com/v4/launches/query";
 
 const launch = {
   flightNumber: 100,
@@ -15,6 +18,55 @@ const launch = {
 };
 
 saveLaunch(launch);
+
+export async function loadLaunchData() {
+  const response = await axios({
+    method: "post",
+    url: SPACEX_API_URL,
+    data: {
+      query: {},
+      options: {
+        populate: [
+          {
+            path: "rocket",
+            select: {
+              name: 1,
+            },
+          },
+          {
+            path: "payloads",
+            select: {
+              customers: 1,
+            },
+          },
+        ],
+      },
+    },
+    headers: {
+      "Accept-Encoding": "gzip, deflate, br,compress",
+    },
+  });
+  const launchDocs = response.data.docs;
+
+  for (const launchDoc of launchDocs) {
+    const payloads = launchDoc["payloads"];
+
+    const customers = payloads.flatMap((payload) => {
+      return payload["customers"];
+    });
+
+    const launch = {
+      flightNumber: launchDoc["flight_number"],
+      mission: launchDoc["name"],
+      rocket: launchDoc["rocket"]["name"],
+      launchDate: launchDoc["date_local"],
+      upcoming: launchDoc["upcoming"],
+      success: launchDoc["success"],
+      customers,
+    };
+    console.log(launch);
+  }
+}
 
 export async function existsLaunchWithId(launchId) {
   return await launches.findOne({ flightNumber: launchId });
@@ -63,18 +115,21 @@ export async function sheduleNewLaunch(launch) {
 }
 
 export async function abortLaunchById(launchId) {
-  const aborted = await launches.updateOne({
-    flightNumber: launchId
-  }, {
-    upcoming: false,
-    success: false
-  })
-
+  const aborted = await launches.updateOne(
+    {
+      flightNumber: launchId,
+    },
+    {
+      upcoming: false,
+      success: false,
+    }
+  );
 
   return aborted.modifiedCount === 1;
 }
 
 export default {
+  loadLaunchData,
   existsLaunchWithId,
   getAllLaunches,
   sheduleNewLaunch,
