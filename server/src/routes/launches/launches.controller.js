@@ -4,9 +4,13 @@ import {
   existsLaunchWithId,
   abortLaunchById,
 } from "../../models/launches.model.js";
+import { getPagination } from "../../services/query.js";
 
 export async function httpGetAllLaunches(req, res) {
-  return res.status(200).json(await getAllLaunches());
+  const { skip, limit } = getPagination(req.query);
+  const launches = await getAllLaunches(skip, limit);
+
+  return res.status(200).json(launches);
 }
 
 export async function httpAddNewLaunch(req, res) {
@@ -36,7 +40,7 @@ export async function httpAddNewLaunch(req, res) {
 
 export async function httpAbortLaunch(req, res) {
   const launchId = Number(req.params.id);
-  const existsLaynch = await existsLaunchWithId(launchId)
+  const existsLaynch = await existsLaunchWithId(launchId);
   if (!existsLaynch) {
     return res.status(404).json({
       error: "Launch not found",
@@ -46,11 +50,11 @@ export async function httpAbortLaunch(req, res) {
 
   if (!aborted) {
     return res.status(400).json({
-      error: "Launch not aborted"
+      error: "Launch not aborted",
     });
   }
   return res.status(200).json({
-    ok: true
+    ok: true,
   });
 }
 
