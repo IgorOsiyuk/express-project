@@ -1,21 +1,23 @@
 import mongoose from "mongoose";
+import * as dotenv from "dotenv";
+dotenv.config();
 
-const mongoUrl = "mongodb://127.0.0.1:27017/Nasa";
+const MONGO_URL = process.env.MONGO_URL;
 
 mongoose.connection.once("open", () => {
-    console.log("MongoDB connection ready!");
+  console.log("MongoDB connection ready!");
 });
 
 mongoose.connection.on("error", (err) => {
-    console.log(`MongoDB ${err}`);
+  console.log(`MongoDB ${err}`);
 });
 
 export async function mongoConnect() {
-    await mongoose.connect(mongoUrl);
+  await mongoose.connect(MONGO_URL);
 }
 
 export async function mongoDisconnect() {
-    await mongoose.disconnect();
+  await mongoose.disconnect();
 }
 
-export default { mongoConnect, mongoDisconnect }
+export default { mongoConnect, mongoDisconnect };
