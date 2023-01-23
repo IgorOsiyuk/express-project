@@ -1,10 +1,12 @@
 import app from "../../app.js";
 import request from "supertest";
 import { mongoConnect, mongoDisconnect } from "../../services/mongo.js";
+import { loadLaunchData } from "../../models/launches.model.js";
 
 describe("Launches API", () => {
   beforeAll(async () => {
     await mongoConnect();
+    await loadLaunchData();
   });
   afterAll(async () => {
     await mongoDisconnect();
