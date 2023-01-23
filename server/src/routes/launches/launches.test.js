@@ -8,13 +8,14 @@ describe("Launches API", () => {
     await mongoConnect();
     await loadLaunchData();
   });
+
   afterAll(async () => {
     await mongoDisconnect();
   });
 
   describe("Test GET /launches", () => {
     test("It should respond with 200 success", async () => {
-      await request(app)
+      const response = await request(app)
         .get("/v1/launches")
         .expect("Content-Type", /json/)
         .expect(200);
@@ -23,25 +24,26 @@ describe("Launches API", () => {
 
   describe("Test POST /launch", () => {
     const completeLaunchData = {
-      mission: "Test2",
-      rocket: "rocket test",
+      mission: "USS Enterprise",
+      rocket: "NCC 1701-D",
       target: "Kepler-62 f",
       launchDate: "January 4, 2028",
     };
+
     const launchDataWithoutDate = {
-      mission: "Test2",
-      rocket: "rocket test",
+      mission: "USS Enterprise",
+      rocket: "NCC 1701-D",
       target: "Kepler-62 f",
     };
 
-    const launchDataWithInvalidData = {
-      mission: "Test2",
-      rocket: "rocket test",
+    const launchDataWithInvalidDate = {
+      mission: "USS Enterprise",
+      rocket: "NCC 1701-D",
       target: "Kepler-62 f",
-      launchDate: "test",
+      launchDate: "zoot",
     };
 
-    test("It should respond with 201 success", async () => {
+    test("It should respond with 201 created", async () => {
       const response = await request(app)
         .post("/v1/launches")
         .send(completeLaunchData)
@@ -50,7 +52,6 @@ describe("Launches API", () => {
 
       const requestDate = new Date(completeLaunchData.launchDate).valueOf();
       const responseDate = new Date(response.body.launchDate).valueOf();
-
       expect(responseDate).toBe(requestDate);
 
       expect(response.body).toMatchObject(launchDataWithoutDate);
@@ -71,7 +72,7 @@ describe("Launches API", () => {
     test("It should catch invalid dates", async () => {
       const response = await request(app)
         .post("/v1/launches")
-        .send(launchDataWithInvalidData)
+        .send(launchDataWithInvalidDate)
         .expect("Content-Type", /json/)
         .expect(400);
 
